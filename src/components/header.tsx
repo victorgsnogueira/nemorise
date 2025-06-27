@@ -15,6 +15,7 @@ import { SignOut } from "./sign-out";
 import { useSidebar } from "./ui/sidebar";
 import { PanelLeft } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import { MonthSelector } from "../app/(app)/_components/month-selector";
 
 interface HeaderProps {
     session: Session | null;
@@ -25,10 +26,13 @@ export function Header({ session }: HeaderProps) {
 
     return (
         <header className="flex items-center justify-between p-4 border-b h-16">
-            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-                <PanelLeft className="h-5 w-5" />
-                <span className="sr-only">Toggle Sidebar</span>
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={toggleSidebar} className="lg:hidden">
+                    <PanelLeft className="h-5 w-5" />
+                    <span className="sr-only">Toggle Sidebar</span>
+                </Button>
+                <MonthSelector />
+            </div>
             <div className="flex items-center gap-2">
                 <ThemeToggle />
                 <DropdownMenu>

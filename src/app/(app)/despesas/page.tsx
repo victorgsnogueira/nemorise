@@ -13,12 +13,13 @@ import { ExpenseModal } from './_components/expense-modal';
 import { PageLayout } from '../_components/page-layout';
 import { TableSkeleton } from '../_components/table-skeleton';
 import { formatCurrency } from '@/lib/utils';
-import { Edit, Trash2, Search } from 'lucide-react';
+import { Edit, Trash2, Search, CheckCircle2 } from 'lucide-react';
 import { ExpenseWithRelations } from '@/contexts/finance-context';
 import ky from 'ky';
+import { toast } from 'sonner';
 
 export default function ExpensesPage() {
-  const { state, dispatch } = useFinance();
+  const { state, dispatch, updateExpense } = useFinance();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -30,7 +31,7 @@ export default function ExpensesPage() {
   const filteredExpenses = state.expenses?.filter(expense => {
     const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          expense.category.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || categoryFilter === 'all' || expense.category.name === categoryFilter;
+    const matchesCategory = !categoryFilter || categoryFilter === 'all' || expense.category.id === categoryFilter;
     const matchesStatus = !statusFilter || statusFilter === 'all' ||
       (statusFilter === 'paid' && expense.isPaid) ||
       (statusFilter === 'pending' && !expense.isPaid);
@@ -41,6 +42,16 @@ export default function ExpensesPage() {
   const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
   const paidExpenses = filteredExpenses.filter(exp => exp.isPaid).reduce((sum, exp) => sum + exp.amount, 0);
   const pendingExpenses = filteredExpenses.filter(exp => !exp.isPaid).reduce((sum, exp) => sum + exp.amount, 0);
+
+  const handleMarkAsPaid = async (expense: ExpenseWithRelations) => {
+    try {
+      await updateExpense({ ...expense, isPaid: true });
+      toast.success('Despesa marcada como paga!');
+    } catch (error) {
+      console.error('Failed to mark expense as paid', error);
+      toast.error('Ocorreu um erro ao atualizar a despesa.');
+    }
+  };
 
   const handleDelete = (expense: ExpenseWithRelations) => {
     setExpenseToDelete(expense);
@@ -164,7 +175,7 @@ export default function ExpensesPage() {
                 <SelectContent>
                   <SelectItem value="all">Todas as categorias</SelectItem>
                   {expenseCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
+                    <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -214,7 +225,16 @@ export default function ExpensesPage() {
               <TableBody>
                 {filteredExpenses.map((expense) => (
                   <TableRow key={expense.id}>
-                    <TableCell className="font-medium">{expense.description}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>{expense.description}</span>
+                        {expense.isInstallment && expense.totalInstallments && (
+                          <Badge variant="outline" className="font-normal">
+                            {expense.installmentNumber}/{expense.totalInstallments}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{expense.category.name}</TableCell>
                     <TableCell className="text-red-600 font-medium">
                       -{formatCurrency(expense.amount)}
@@ -229,6 +249,16 @@ export default function ExpensesPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
+                        {!expense.isPaid && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleMarkAsPaid(expense)}
+                          >
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            Pagar
+                          </Button>
+                        )}
                         <ExpenseModal 
                           expense={expense}
                           trigger={
@@ -262,7 +292,7 @@ export default function ExpensesPage() {
           <DialogHeader>
             <DialogTitle>Confirmar Exclusão</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir a despesa "{expenseToDelete?.description}"? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir a despesa &quot;{expenseToDelete?.description}&quot;? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

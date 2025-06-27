@@ -13,6 +13,8 @@ import {
 import { Button } from "./ui/button"
 import { Slider } from "./ui/slider"
 import { Label } from "./ui/label"
+import ky from "ky"
+import { toast } from "sonner"
 
 const themeProperties = [
     "--background", "--foreground", "--card", "--card-foreground",
@@ -94,10 +96,21 @@ export function ThemeCustomizerModal({ children }: { children: React.ReactNode }
         }
     }, [hue, saturation, lightness, isOpen]);
 
-    const handleSave = () => {
-        lastSavedTheme = generateThemeCss(hue, saturation, lightness);
-        lastSavedHSL = { hue, saturation, lightness };
-        setIsOpen(false);
+    const handleSave = async () => {
+        try {
+            await ky.patch('/api/user/theme', {
+                json: { hue, saturation, lightness }
+            });
+            
+            lastSavedTheme = generateThemeCss(hue, saturation, lightness);
+            lastSavedHSL = { hue, saturation, lightness };
+            
+            toast.success("Tema salvo com sucesso!");
+            setIsOpen(false);
+        } catch (error) {
+            toast.error("Ocorreu um erro ao salvar o tema.");
+            console.error(error);
+        }
     };
 
     const handleOpenChange = (open: boolean) => {

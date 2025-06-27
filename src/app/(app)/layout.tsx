@@ -4,31 +4,18 @@ import {
     Sidebar,
     SidebarHeader,
     SidebarContent,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
     SidebarFooter,
-    SidebarGroup,
-    SidebarGroupLabel
 } from "@/components/ui/sidebar";
-import { 
-    HomeIcon, 
-    LogOutIcon,
-    LayoutGrid,
-    ArrowLeftRight,
-    TrendingUp,
-    Shapes,
-    Settings,
- } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
-import { SignOut } from "@/components/sign-out";
+import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SidebarNav } from "./_components/sidebar-nav";
 import { SidebarFooterNav } from "./_components/sidebar-footer-nav";
 import { FinanceProvider } from "@/contexts/finance-context";
+import { ThemeLoader } from "@/components/theme-loader";
+import { Toaster } from "@/components/ui/sonner";
 
 export default async function AppLayout({
     children,
@@ -71,6 +58,8 @@ export default async function AppLayout({
                     </div>
                 </main>
             </SidebarProvider>
+            <ThemeLoader />
+            <Toaster />
         </FinanceProvider>
     );
 } 

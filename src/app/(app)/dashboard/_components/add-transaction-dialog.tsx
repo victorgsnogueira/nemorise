@@ -20,7 +20,11 @@ import { Plus } from 'lucide-react';
 import { ExpenseForm } from '@/app/(app)/despesas/_components/expense-form';
 import { IncomeForm } from '@/app/(app)/receitas/_components/income-form';
 
-export function AddTransactionDialog() {
+interface AddTransactionDialogProps {
+    trigger?: React.ReactNode;
+}
+
+export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
     const [open, setOpen] = useState(false);
 
     const handleSuccess = () => {
@@ -30,10 +34,12 @@ export function AddTransactionDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Adicionar Transação
-                </Button>
+                {trigger || (
+                    <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Adicionar Transação
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] md:max-w-screen-md max-h-[95vh] overflow-y-auto">
                 <Tabs defaultValue="expense" className="w-full">

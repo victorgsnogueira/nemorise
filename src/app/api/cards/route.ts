@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -17,7 +17,7 @@ export async function GET() {
             where: { userId: session.user.id },
         });
         return NextResponse.json(cards);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to fetch cards" }, { status: 500 });
     }
 }
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
             },
         });
         return NextResponse.json(newCard, { status: 201 });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to create card" }, { status: 500 });
     }
 }
@@ -67,7 +67,7 @@ export async function PUT(req: Request) {
             data: { name, dueDay: parseInt(dueDay, 10), color },
         });
         return NextResponse.json(updatedCard);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to update card" }, { status: 500 });
     }
 }
@@ -89,7 +89,7 @@ export async function DELETE(req: Request) {
             where: { id: id },
         });
         return NextResponse.json({ message: "Card deleted" }, { status: 200 });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to delete card" }, { status: 500 });
     }
 } 

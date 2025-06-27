@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { getServerSession } from "next-auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { authOptions } from "./api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import {
   ArrowRight,
   BarChart,

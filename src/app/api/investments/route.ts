@@ -1,31 +1,29 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.id) {
+    if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     try {
-        const incomes = await prisma.income.findMany({
+        const investments = await prisma.investment.findMany({
             where: { userId: session.user.id },
-            include: { category: true },
             orderBy: { date: 'desc' },
         });
-        return NextResponse.json(incomes);
-    } catch {
-        return NextResponse.json({ error: "Failed to fetch incomes" }, { status: 500 });
+        return NextResponse.json(investments);
+    } catch (error) {
+        console.error("Failed to fetch investments:", error);
+        return NextResponse.json({ error: "Failed to fetch investments" }, { status: 500 });
     }
 }
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
-
-    if (!session || !session.user?.id) {
+    if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -35,34 +33,28 @@ export async function POST(req: Request) {
             description,
             amount,
             date,
-            isReceived,
-            notes,
-            categoryId,
+            status,
         } = body;
 
-        // Basic validation
-        if (!description || !amount || !date || !categoryId) {
+        if (!description || !amount || !date || !status) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const income = await prisma.income.create({
+        const investment = await prisma.investment.create({
             data: {
                 description,
                 amount: parseFloat(amount),
                 date: new Date(date),
-                isReceived: Boolean(isReceived),
-                notes,
+                status,
                 userId: session.user.id,
-                categoryId,
             },
-            include: { category: true },
         });
 
-        return NextResponse.json(income, { status: 201 });
+        return NextResponse.json(investment, { status: 201 });
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { error: "An error occurred while creating the income." },
+            { error: "An error occurred while creating the investment." },
             { status: 500 }
         );
     }
@@ -74,22 +66,25 @@ export async function PUT(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     try {
-        const { id, ...data } = await req.json();
+        const { id, description, amount, date, status } = await req.json();
+        
         if (!id) {
-            return NextResponse.json({ error: "Income ID is required" }, { status: 400 });
+            return NextResponse.json({ error: "Investment ID is required" }, { status: 400 });
         }
-        const updatedIncome = await prisma.income.update({
+
+        const updatedInvestment = await prisma.investment.update({
             where: { id },
             data: {
-                ...data,
-                amount: parseFloat(data.amount),
-                date: new Date(data.date),
+                description,
+                amount: parseFloat(amount),
+                date: new Date(date),
+                status,
             },
-            include: { category: true },
         });
-        return NextResponse.json(updatedIncome);
-    } catch {
-        return NextResponse.json({ error: "Failed to update income" }, { status: 500 });
+        return NextResponse.json(updatedInvestment);
+    } catch (error) {
+        console.error("Failed to update investment:", error);
+        return NextResponse.json({ error: "Failed to update investment" }, { status: 500 });
     }
 }
 
@@ -101,13 +96,13 @@ export async function DELETE(req: Request) {
     try {
         const { id } = await req.json();
         if (!id) {
-            return NextResponse.json({ error: "Income ID is required" }, { status: 400 });
+            return NextResponse.json({ error: "Investment ID is required" }, { status: 400 });
         }
-        await prisma.income.delete({
+        await prisma.investment.delete({
             where: { id },
         });
-        return NextResponse.json({ message: "Income deleted" });
+        return NextResponse.json({ message: "Investment deleted" });
     } catch {
-        return NextResponse.json({ error: "Failed to delete income" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to delete investment" }, { status: 500 });
     }
 } 

@@ -32,13 +32,14 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
   const { state, addExpense, updateExpense } = useFinance();
 
   const [description, setDescription] = useState(expense?.description ?? '');
-  const [amount, setAmount] = useState<number | undefined>(expense?.amount);
+  const [amount, setAmount] = useState<number | string>(expense?.amount ?? '');
   const [date, setDate] = useState<Date | undefined>(expense?.date ? new Date(expense.date) : new Date());
   const [categoryId, setCategoryId] = useState(expense?.categoryId ?? '');
   const [cardId, setCardId] = useState(expense?.cardId ?? null);
   const [isPaid, setIsPaid] = useState(expense?.isPaid ?? false);
   const [isInstallment, setIsInstallment] = useState(expense?.isInstallment ?? false);
-  const [installments, setInstallments] = useState(expense?.installments ?? 1);
+  const [installments, setInstallments] = useState(expense?.installments ?? 2);
+  const [showCustomInstallments, setShowCustomInstallments] = useState(expense?.installments ? expense.installments > 12 : false);
   const [notes, setNotes] = useState(expense?.notes ?? '');
   const [error, setError] = useState('');
 
@@ -52,9 +53,11 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
         return;
     }
 
+    const numericAmount = parseFloat(String(amount));
+
     const dataToSave = {
       description,
-      amount,
+      amount: isNaN(numericAmount) ? 0 : numericAmount,
       date,
       categoryId,
       cardId: cardId === 'none' ? null : cardId,
@@ -92,7 +95,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           <FormattedCurrencyInput
             id="amount"
             placeholder="R$ 0,00"
-            onValueChange={(value) => setAmount(value ? parseFloat(value) : undefined)}
+            onValueChange={(value) => setAmount(value ? parseFloat(value) : '')}
             value={amount}
             prefix="R$ "
             decimalSeparator=","
@@ -158,14 +161,40 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
         {isInstallment && (
           <div className="space-y-2 pl-6">
             <Label htmlFor="installments">Número de Parcelas</Label>
-            <Input
-              id="installments"
-              type="number"
-              value={installments}
-              onChange={(e) => setInstallments(parseInt(e.target.value, 10))}
-              className="max-w-xs"
-              min={2}
-            />
+            <Select 
+              value={showCustomInstallments ? 'custom' : installments.toString()}
+              onValueChange={(value) => {
+                if (value === 'custom') {
+                  setShowCustomInstallments(true);
+                  setInstallments(13); 
+                } else {
+                  setShowCustomInstallments(false);
+                  setInstallments(parseInt(value, 10));
+                }
+              }}
+            >
+                <SelectTrigger className="max-w-xs">
+                    <SelectValue placeholder="Selecione o número de parcelas" />
+                </SelectTrigger>
+                <SelectContent>
+                    {Array.from({ length: 11 }, (_, i) => i + 2).map(val => (
+                        <SelectItem key={val} value={val.toString()}>{val}x</SelectItem>
+                    ))}
+                    <SelectItem value="custom">Mais de 12x</SelectItem>
+                </SelectContent>
+            </Select>
+
+            {showCustomInstallments && (
+              <Input
+                id="customInstallments"
+                type="number"
+                value={installments}
+                onChange={(e) => setInstallments(parseInt(e.target.value, 10) || 13)}
+                className="mt-2 max-w-xs"
+                min={13}
+                placeholder="Digite o número de parcelas"
+              />
+            )}
           </div>
         )}
       
