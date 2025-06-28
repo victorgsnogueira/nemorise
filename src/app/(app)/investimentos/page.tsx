@@ -50,7 +50,7 @@ export default function InvestmentsPage() {
         </div>
         <InvestmentModal />
       </div>
-      
+
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>

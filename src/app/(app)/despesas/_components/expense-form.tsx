@@ -185,10 +185,10 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
             </Select>
 
             {showCustomInstallments && (
-              <Input
+            <Input
                 id="customInstallments"
-                type="number"
-                value={installments}
+              type="number"
+              value={installments}
                 onChange={(e) => setInstallments(parseInt(e.target.value, 10) || 13)}
                 className="mt-2 max-w-xs"
                 min={13}

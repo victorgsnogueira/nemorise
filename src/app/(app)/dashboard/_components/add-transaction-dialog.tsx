@@ -35,10 +35,10 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {trigger || (
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Adicionar Transação
-                    </Button>
+                <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Adicionar Transação
+                </Button>
                 )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] md:max-w-screen-md max-h-[95vh] overflow-y-auto">

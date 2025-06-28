@@ -15,6 +15,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import { CardForm } from './_components/card-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import ky from 'ky';
+import { CreditCardComponent } from './_components/credit-card';
 
 function CardSkeleton() {
   return (
@@ -39,17 +40,7 @@ function CardSkeleton() {
 }
 
 export default function CardsPage() {
-  const { state, dispatch } = useFinance();
-
-  const handleDelete = async (id: string) => {
-    try {
-      await ky.delete('/api/cards', { json: { id } });
-      dispatch({ type: 'DELETE_CARD', payload: id });
-    } catch (error) {
-      console.error('Failed to delete card', error);
-      // TODO: Add user-facing error notification
-    }
-  };
+  const { state } = useFinance();
 
   if (!state.isLoaded) {
     return (
@@ -81,37 +72,7 @@ export default function CardsPage() {
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
         {state.cards.map((card) => (
-          <Card key={card.id}>
-            <CardHeader>
-              <CardTitle>{card.name}</CardTitle>
-              <CardDescription>
-                Vencimento todo dia {card.dueDay}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div
-                className="h-24 w-full rounded-lg"
-                style={{ backgroundColor: card.color ?? undefined }}
-              />
-            </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              <CardForm
-                card={card}
-                trigger={
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                }
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDelete(card.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </CardFooter>
-          </Card>
+          <CreditCardComponent key={card.id} card={card} />
         ))}
       </div>
     </PageLayout>

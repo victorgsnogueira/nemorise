@@ -143,7 +143,14 @@ function financeReducer(state: FinanceState, action: FinanceAction): FinanceStat
     case 'ADD_EXPENSE':
       return financeReducer(state, { type: 'ADD_EXPENSES', payload: [action.payload] });
     case 'ADD_EXPENSES': {
-      const newAllExpenses = [...state.allExpenses, ...action.payload].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const existingExpenses = new Map(state.allExpenses.map(e => [e.id, e]));
+      action.payload.forEach(e => {
+        existingExpenses.set(e.id, e);
+      });
+      
+      const newAllExpenses = Array.from(existingExpenses.values())
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
       const monthStart = startOfMonth(state.selectedMonth);
       const monthEnd = endOfMonth(state.selectedMonth);
       const filteredExpenses = newAllExpenses.filter(e => isWithinInterval(new Date(e.date), { start: monthStart, end: monthEnd }));
@@ -156,7 +163,7 @@ function financeReducer(state: FinanceState, action: FinanceAction): FinanceStat
     }
     case 'UPDATE_EXPENSE': {
       const updatedAllExpenses = state.allExpenses.map((expense) =>
-        expense.id === action.payload.id ? action.payload : expense
+          expense.id === action.payload.id ? action.payload : expense
       );
       const monthStart = startOfMonth(state.selectedMonth);
       const monthEnd = endOfMonth(state.selectedMonth);
@@ -313,7 +320,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   const deleteExpense = async (id: string) => {
     try {
         await ky.delete('/api/expenses', { json: { id } });
-        dispatch({ type: 'DELETE_EXPENSE', payload: id });
+    dispatch({ type: 'DELETE_EXPENSE', payload: id });
     } catch (error) {
         console.error('Failed to delete expense', error);
         // TODO: Add error notification
