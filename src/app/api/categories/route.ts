@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
-        const categories = await prisma.category.findMany();
+        const categories = await prisma.category.findMany({
+            where: {
+                userId: session.user.id,
+            },
+        });
         return NextResponse.json(categories);
     } catch {
         return NextResponse.json(

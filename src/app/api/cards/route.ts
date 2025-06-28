@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // GET all cards for the logged-in user
 export async function GET() {
@@ -62,6 +60,14 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        const card = await prisma.card.findUnique({
+            where: { id },
+        });
+
+        if (!card || card.userId !== session.user.id) {
+            return NextResponse.json({ error: "Card not found or unauthorized" }, { status: 404 });
+        }
+
         const updatedCard = await prisma.card.update({
             where: { id: id },
             data: { name, dueDay: parseInt(dueDay, 10), color },
@@ -83,6 +89,14 @@ export async function DELETE(req: Request) {
         const { id } = await req.json();
         if (!id) {
             return NextResponse.json({ error: "Card ID is required" }, { status: 400 });
+        }
+
+        const card = await prisma.card.findUnique({
+            where: { id },
+        });
+
+        if (!card || card.userId !== session.user.id) {
+            return NextResponse.json({ error: "Card not found or unauthorized" }, { status: 404 });
         }
 
         await prisma.card.delete({

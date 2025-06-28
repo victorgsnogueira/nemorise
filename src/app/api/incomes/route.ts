@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
@@ -78,6 +76,15 @@ export async function PUT(req: Request) {
         if (!id) {
             return NextResponse.json({ error: "Income ID is required" }, { status: 400 });
         }
+
+        const income = await prisma.income.findUnique({
+            where: { id },
+        });
+
+        if (!income || income.userId !== session.user.id) {
+            return NextResponse.json({ error: "Income not found or unauthorized" }, { status: 404 });
+        }
+
         const updatedIncome = await prisma.income.update({
             where: { id },
             data: {
@@ -103,6 +110,15 @@ export async function DELETE(req: Request) {
         if (!id) {
             return NextResponse.json({ error: "Income ID is required" }, { status: 400 });
         }
+
+        const income = await prisma.income.findUnique({
+            where: { id },
+        });
+
+        if (!income || income.userId !== session.user.id) {
+            return NextResponse.json({ error: "Income not found or unauthorized" }, { status: 404 });
+        }
+
         await prisma.income.delete({
             where: { id },
         });

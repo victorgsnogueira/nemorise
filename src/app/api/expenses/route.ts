@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { addMonths } from "date-fns";
 import cuid from "cuid";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
         const expenses = await prisma.expense.findMany({
+            where: {
+                userId: session.user.id,
+            },
             include: {
                 category: true,
                 card: true,
@@ -145,6 +152,14 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
         }
 
+        const expense = await prisma.expense.findUnique({
+            where: { id },
+        });
+
+        if (!expense || expense.userId !== session.user.id) {
+            return NextResponse.json({ error: "Expense not found or unauthorized" }, { status: 404 });
+        }
+
         const dataToUpdate: UpdateExpenseData = {};
         if (description !== undefined) dataToUpdate.description = description;
         if (amount !== undefined) dataToUpdate.amount = parseFloat(amount);
@@ -178,6 +193,14 @@ export async function DELETE(req: Request) {
         const { id } = await req.json();
         if (!id) {
             return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
+        }
+
+        const expense = await prisma.expense.findUnique({
+            where: { id },
+        });
+
+        if (!expense || expense.userId !== session.user.id) {
+            return NextResponse.json({ error: "Expense not found or unauthorized" }, { status: 404 });
         }
 
         await prisma.expense.delete({

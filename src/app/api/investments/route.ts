@@ -72,6 +72,14 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Investment ID is required" }, { status: 400 });
         }
 
+        const investment = await prisma.investment.findUnique({
+            where: { id },
+        });
+
+        if (!investment || investment.userId !== session.user.id) {
+            return NextResponse.json({ error: "Investment not found or unauthorized" }, { status: 404 });
+        }
+
         const updatedInvestment = await prisma.investment.update({
             where: { id },
             data: {
@@ -98,6 +106,15 @@ export async function DELETE(req: Request) {
         if (!id) {
             return NextResponse.json({ error: "Investment ID is required" }, { status: 400 });
         }
+
+        const investment = await prisma.investment.findUnique({
+            where: { id },
+        });
+
+        if (!investment || investment.userId !== session.user.id) {
+            return NextResponse.json({ error: "Investment not found or unauthorized" }, { status: 404 });
+        }
+
         await prisma.investment.delete({
             where: { id },
         });
