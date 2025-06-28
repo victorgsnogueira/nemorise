@@ -1,20 +1,15 @@
 'use client';
 
 import { useFinance } from '@/contexts/finance-context';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { PageLayout } from '../_components/page-layout';
-import { Edit, Trash2 } from 'lucide-react';
 import { CardForm } from './_components/card-form';
 import { Skeleton } from '@/components/ui/skeleton';
-import ky from 'ky';
 import { CreditCardComponent } from './_components/credit-card';
 
 function CardSkeleton() {
