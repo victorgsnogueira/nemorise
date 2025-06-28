@@ -32,6 +32,7 @@ import { CalendarIcon, Plus } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { FormattedCurrencyInput } from '@/components/ui/formatted-currency-input';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -166,7 +167,7 @@ export function InvestmentModal({ investment, trigger }: InvestmentModalProps) {
                                 )}
                                 >
                                 {field.value ? (
-                                    format(field.value, "PPP")
+                                    format(field.value, "PPP", { locale: ptBR })
                                 ) : (
                                     <span>Escolha uma data</span>
                                 )}
@@ -203,7 +204,7 @@ export function InvestmentModal({ investment, trigger }: InvestmentModalProps) {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      É uma promessa (valor apenas reservado)?
+                      Reservar Valor
                     </FormLabel>
                   </div>
                 </FormItem>
