@@ -41,21 +41,12 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
                 </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] md:max-w-screen-md max-h-[95vh] overflow-y-auto">
-                <Tabs defaultValue="expense" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="expense">Despesa</TabsTrigger>
+            <DialogContent className="sm:max-w-[425px] max-h-[95vh] overflow-y-auto">
+                <Tabs defaultValue="income" className="w-full">
+                    <TabsList>
                         <TabsTrigger value="income">Receita</TabsTrigger>
+                        <TabsTrigger value="expense">Despesa</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="expense">
-                        <DialogHeader className="pt-6 pb-4">
-                            <DialogTitle>Adicionar Despesa</DialogTitle>
-                            <DialogDescription>
-                                Preencha os detalhes da nova despesa.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <ExpenseForm onSuccess={handleSuccess} />
-                    </TabsContent>
                     <TabsContent value="income">
                         <DialogHeader className="pt-6 pb-4">
                             <DialogTitle>Adicionar Receita</DialogTitle>
@@ -64,6 +55,15 @@ export function AddTransactionDialog({ trigger }: AddTransactionDialogProps) {
                             </DialogDescription>
                         </DialogHeader>
                         <IncomeForm onSuccess={handleSuccess} />
+                    </TabsContent>
+                    <TabsContent value="expense">
+                        <DialogHeader className="pt-6 pb-4">
+                            <DialogTitle>Adicionar Despesa</DialogTitle>
+                            <DialogDescription>
+                                Preencha os detalhes da nova despesa.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <ExpenseForm onSuccess={handleSuccess} />
                     </TabsContent>
                 </Tabs>
             </DialogContent>

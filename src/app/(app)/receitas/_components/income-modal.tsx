@@ -36,7 +36,7 @@ export function IncomeModal({ income, trigger }: IncomeModalProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] md:max-w-screen-md max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{income ? 'Editar Receita' : 'Nova Receita'}</DialogTitle>
           <DialogDescription>

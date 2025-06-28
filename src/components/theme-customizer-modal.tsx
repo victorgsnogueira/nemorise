@@ -135,7 +135,7 @@ export function ThemeCustomizerModal({ children }: { children: React.ReactNode }
             lastSavedThemeConfig = { hue, saturation, lightness, mode };
             
             toast.success("Tema salvo com sucesso!");
-            setIsOpen(false);
+        setIsOpen(false);
         } catch (error) {
             toast.error("Ocorreu um erro ao salvar o tema.");
             console.error(error);

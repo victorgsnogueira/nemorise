@@ -36,7 +36,7 @@ export function ExpenseModal({ expense, trigger }: ExpenseModalProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] md:max-w-screen-md max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{expense ? 'Editar Despesa' : 'Nova Despesa'}</DialogTitle>
           <DialogDescription>
