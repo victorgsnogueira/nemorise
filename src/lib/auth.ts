@@ -5,12 +5,6 @@ import { AuthOptions, User } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 
-interface ThemeData {
-    hue: number;
-    saturation: number;
-    lightness: number;
-}
-
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -49,39 +43,32 @@ export const authOptions: AuthOptions = {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, theme, ...userWithoutPassword } = user;
+        const { password, ...userWithoutPassword } = user;
         
-        const userProfile: User = {
-            ...userWithoutPassword,
-            id: user.id, // Ensure id is passed
-            theme: theme as ThemeData | null,
-        };
-
-        return userProfile;
+        return userWithoutPassword as User
       },
     }),
   ],
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
-        const userFromDb = await prisma.user.findUnique({
-          where: { id: token.sub },
-        })
-
         session.user.id = token.sub as string
-        if (userFromDb?.theme && typeof userFromDb.theme === 'object' && userFromDb.theme !== null) {
-          session.user.theme = userFromDb.theme as {
-            hue: number;
-            saturation: number;
-            lightness: number;
-          }
+        if (token.theme) {
+          session.user.theme = token.theme
         }
       }
       return session
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session?.theme) {
+        token.theme = session.theme;
+      }
+      
       if (user) {
         token.sub = user.id
+        if (user.theme) {
+            token.theme = user.theme
+        }
       }
       return token
     },

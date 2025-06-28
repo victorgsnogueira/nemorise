@@ -12,6 +12,7 @@ declare module "next-auth" {
         hue: number
         saturation: number
         lightness: number
+        mode: 'light' | 'dark'
       } | null
     } & DefaultSession["user"]
   }
@@ -21,6 +22,19 @@ declare module "next-auth" {
       hue: number
       saturation: number
       lightness: number
+      mode: 'light' | 'dark'
+    } | null
+  }
+}
+
+declare module "next-auth/jwt" {
+  /** Extensão do token JWT para incluir o tema do usuário. */
+  interface JWT {
+    theme?: {
+      hue: number
+      saturation: number
+      lightness: number
+      mode: 'light' | 'dark'
     } | null
   }
 } 

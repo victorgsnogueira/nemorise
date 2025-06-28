@@ -8,6 +8,7 @@ const themeSchema = z.object({
   hue: z.number().min(0).max(360),
   saturation: z.number().min(0).max(1),
   lightness: z.number().min(0).max(1),
+  mode: z.enum(['light', 'dark']),
 });
 
 export async function PATCH(req: NextRequest) {
